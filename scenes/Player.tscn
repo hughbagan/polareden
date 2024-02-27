@@ -1,0 +1,77 @@
+[gd_scene load_steps=13 format=3 uid="uid://d2ekmr7ym4u8m"]
+
+[ext_resource type="Script" path="res://scenes/Player.cs" id="1_oaegq"]
+[ext_resource type="Texture2D" uid="uid://dw8aiakn0sc1f" path="res://common/colored_packed.png" id="1_yi8ha"]
+[ext_resource type="Texture2D" uid="uid://dwoqcv0g7dxlq" path="res://common/radial.png" id="3_6a607"]
+[ext_resource type="AudioStream" uid="uid://b12anwbss11bv" path="res://common/step1.wav" id="4_2yjfw"]
+[ext_resource type="AudioStream" uid="uid://bcgbdh6vnmylq" path="res://common/step2.wav" id="5_htr4f"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_wxcrq"]
+radius = 7.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_odmwa"]
+atlas = ExtResource("1_yi8ha")
+region = Rect2(288, 128, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lg8ya"]
+atlas = ExtResource("1_yi8ha")
+region = Rect2(304, 128, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kvfgi"]
+atlas = ExtResource("1_yi8ha")
+region = Rect2(320, 128, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8bqgs"]
+atlas = ExtResource("1_yi8ha")
+region = Rect2(336, 128, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qqrks"]
+atlas = ExtResource("1_yi8ha")
+region = Rect2(352, 128, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_p3quh"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_odmwa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lg8ya")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kvfgi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8bqgs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qqrks")
+}],
+"loop": true,
+"name": &"default",
+"speed": 16.0
+}]
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_oaegq")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_wxcrq")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_p3quh")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(5, 5)
+
+[node name="PointLight2D" type="PointLight2D" parent="."]
+energy = 1.5
+texture = ExtResource("3_6a607")
+
+[node name="Step1" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_2yjfw")
+volume_db = -10.0
+
+[node name="Step2" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_htr4f")
+volume_db = -10.0
