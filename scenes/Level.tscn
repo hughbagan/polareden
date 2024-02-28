@@ -3432,5 +3432,5 @@ generator = NodePath("../../WFC Generator")
 [node name="RainforestAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("5_oevyw")
 
-[connection signal="OnDone" from="WFC Generator" to="." method="_OnWFCGeneratorDone"]
+[connection signal="OnDone" from="WFC Generator" to="." method="OnWFCGeneratorDone"]
 [connection signal="pressed" from="UI/Button" to="WFC Generator" method="OnButtonPressed"]

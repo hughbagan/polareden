@@ -32,9 +32,11 @@ public partial class Level : Node2D
 	{
 	}
 
-	public async void _OnWFCGeneratorDone()
+	public async void OnWFCGeneratorDone()
 	{
 		GD.Print("Done");
+		GD.Print(TargetTileMap.GetUsedCells(0));
+		GD.Print(TargetTileMap.GetUsedRect());
 		GetNode<NavigationRegion2D>("WFC Generator/NavigationRegion2D").Enabled = false;
 		UI.Hide();
 		CanvasBlack.Show();
