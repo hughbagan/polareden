@@ -12,6 +12,7 @@ public partial class Level : Node2D
 	private CanvasModulate CanvasBlack;
 	private Player PlayerInstance;
 	private AudioStreamPlayer RainforestAudio;
+	private Rect2 LevelRect; // target tilemap rect in global position
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -36,19 +37,51 @@ public partial class Level : Node2D
 	{
 		GD.Print("Done");
 		GD.Print(TargetTileMap.GetUsedCells(0));
-		GD.Print(TargetTileMap.GetUsedRect());
+		Rect2I targetRect = TargetTileMap.GetUsedRect();
+		Vector2 targetPos = ToGlobal(TargetTileMap.MapToLocal(targetRect.Position));
+		Vector2 targetSize = ToGlobal(TargetTileMap.MapToLocal(targetRect.Size - new Vector2I(1,1)));
+		LevelRect = new Rect2(targetPos.X, targetPos.Y, targetSize.X, targetSize.Y);
+		GD.Print(ToGlobal(TargetTileMap.MapToLocal(TargetTileMap.GetUsedRect().Size)));
 		GetNode<NavigationRegion2D>("WFC Generator/NavigationRegion2D").Enabled = false;
+		TargetNavRegion.BakeNavigationPolygon(false); // bake on same thread
+
 		UI.Hide();
 		CanvasBlack.Show();
 
-		RainforestAudio.Play(GD.Randi() % 300);
-
-		// Array[Vector2I] cells = TargetTileMap.GetUsedCells(0);
-
-		TargetNavRegion.BakeNavigationPolygon(false); // bake on same thread
-
 		PlayerInstance = (Player) PlayerScene.Instantiate();
+		PlayerInstance.LevelRect = LevelRect;
+		// Try to place the player
+		Rid map = GetWorld2D().NavigationMap;
+		Vector2 pos = LevelRect.Position + LevelRect.Size/2;
+		float tileSize = TargetTileMap.TileSet.TileSize.X;
+		while (true)
+		{
+			Vector2 closest = NavigationServer2D.MapGetClosestPoint(map, pos);
+			if ((closest - pos).IsZeroApprox())
+				break;
+			else // try a new pos
+			{
+				if (GD.Randf() > 0.5f)
+				{
+					if (GD.Randf() > 0.5f)
+						pos = new Vector2(pos.X+tileSize, pos.Y);
+					else
+						pos = new Vector2(pos.X-tileSize, pos.Y);
+				}
+				if (GD.Randf() > 0.5f)
+				{
+					if (GD.Randf() > 0.5f)
+						pos = new Vector2(pos.X, pos.Y+tileSize);
+					else
+						pos = new Vector2(pos.X, pos.Y-tileSize);
+				}
+				GD.Print("invalid, try "+pos.ToString());
+			}
+		}
+		PlayerInstance.GlobalPosition = pos;
 		AddChild(PlayerInstance);
+
+		RainforestAudio.Play(GD.Randi() % 300);
 
 		Tween CamPosTween = GetTree().CreateTween();
 		Tween CamZoomTween = GetTree().CreateTween();
@@ -57,7 +90,6 @@ public partial class Level : Node2D
 		Tween CanvasModulateTween = GetTree().CreateTween();
 		CanvasModulateTween.TweenProperty(CanvasBlack, "color:a", 1.0, 1.0);
 		await ToSignal(CamPosTween, "finished");
-
 		PlayerInstance.Camera.MakeCurrent();
 	}
 }
