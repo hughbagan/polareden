@@ -10,11 +10,10 @@ public partial class Level : Node2D
 	private TileMap TargetTileMap;
 	private Camera2D Camera;
 	private CanvasModulate CanvasBlack;
-	private Player PlayerInstance;
+	private Player PlayerInstance = null;
 	private AudioStreamPlayer RainforestAudio;
 	private Rect2 LevelRect; // target tilemap rect in global position
 
-	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		GD.Randomize();
@@ -26,22 +25,26 @@ public partial class Level : Node2D
 		CanvasBlack = GetNode<CanvasModulate>("CanvasModulate");
 		UI = GetNode<Control>("UI");
 		RainforestAudio = GetNode<AudioStreamPlayer>("RainforestAudio");
+
+		Camera.Position = new Vector2(
+			(Generator.H*Generator.target.TileSet.TileSize.X)*0.5f,
+			(Generator.V*Generator.target.TileSet.TileSize.Y)*0.5f);
+		UI.Position = Camera.Position;
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
 	}
 
 	public async void OnWFCGeneratorDone()
 	{
-		GD.Print("Done");
-		GD.Print(TargetTileMap.GetUsedCells(0));
+		if (PlayerInstance != null)
+			return; // in rare errors the generator will signal more than once
+
 		Rect2I targetRect = TargetTileMap.GetUsedRect();
 		Vector2 targetPos = ToGlobal(TargetTileMap.MapToLocal(targetRect.Position));
 		Vector2 targetSize = ToGlobal(TargetTileMap.MapToLocal(targetRect.Size - new Vector2I(1,1)));
 		LevelRect = new Rect2(targetPos.X, targetPos.Y, targetSize.X, targetSize.Y);
-		GD.Print(ToGlobal(TargetTileMap.MapToLocal(TargetTileMap.GetUsedRect().Size)));
 		GetNode<NavigationRegion2D>("WFC Generator/NavigationRegion2D").Enabled = false;
 		TargetNavRegion.BakeNavigationPolygon(false); // bake on same thread
 

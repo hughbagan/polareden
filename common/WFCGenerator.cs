@@ -21,7 +21,6 @@ public partial class WFCGenerator : Node2D
 
 	[Export] public bool showProgress = true; // If you know the code works for you disable this as it may impact performance
 
-
 	// Holds tile occurrences in the sample for future use as rules
 	private Dictionary<Vector2I, List<Rule>> usedRules = new Dictionary<Vector2I, List<Rule>>();
 	// Holds number of repeatitions of each option. Used for calculating occurance probablity
@@ -35,11 +34,11 @@ public partial class WFCGenerator : Node2D
 	private bool done = false;
 	private bool failed = false; // Will be set to true if generation fails
 	private const int TRY_FIX_TIMES = 10; // Will try to fix fails this many times before giving up
+	private int failCount = 0;
+	private int failMax = 1000;
 
 	private Task generationTask;
 	private bool taskLastState = true; // true means done
-
-
 
 	[Signal] public delegate void OnDoneEventHandler(); // emitted on end of generation
 
@@ -132,6 +131,12 @@ public partial class WFCGenerator : Node2D
 
 		for (int i=0; i<TRY_FIX_TIMES && failed; i++)
 		{
+			failCount++;
+			if (failCount > failMax)
+			{
+				GD.Print("regenerate map");
+				GetTree().ReloadCurrentScene(); // cant resolve conflicts, start over completely
+			}
 			FixFail();
 		}
 	}
@@ -477,6 +482,7 @@ public partial class WFCGenerator : Node2D
 		taskLastState = true;
 		currentN = 0;
 		failed = false;
+		failCount = 0;
 
 		tileMapArray = new List<List<Vector2I>>(H + MATCH_RADIUS * 2);
 		for (int i = 0; i < H + MATCH_RADIUS * 2; i++)
