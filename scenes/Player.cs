@@ -34,6 +34,8 @@ public partial class Player : CharacterBody2D
 		Godot.Vector2 projected = GlobalPosition+Velocity.Normalized();
 		if (projected.X > LevelRect.Position.X && projected.X < LevelRect.End.X && projected.Y > LevelRect.Position.Y && projected.Y < LevelRect.End.Y)
 			MoveAndSlide();
+		else
+			GD.Print("hit edge ", GlobalPosition, projected, LevelRect);
 
 		if (Velocity == Godot.Vector2.Zero)
 		{

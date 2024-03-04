@@ -13,6 +13,7 @@ public partial class Level : Node2D
 	private Player PlayerInstance = null;
 	private AudioStreamPlayer RainforestAudio;
 	private Rect2 LevelRect; // target tilemap rect in global position
+	private Button StartButton;
 
 	public override void _Ready()
 	{
@@ -25,10 +26,11 @@ public partial class Level : Node2D
 		CanvasBlack = GetNode<CanvasModulate>("CanvasModulate");
 		UI = GetNode<Control>("UI");
 		RainforestAudio = GetNode<AudioStreamPlayer>("RainforestAudio");
+		StartButton = GetNode<Button>("UI/StartButton");
 
 		Camera.Position = new Vector2(
-			(Generator.H*Generator.target.TileSet.TileSize.X)*0.5f,
-			(Generator.V*Generator.target.TileSet.TileSize.Y)*0.5f);
+			Generator.H*Generator.target.TileSet.TileSize.X*0.5f,
+			Generator.V*Generator.target.TileSet.TileSize.Y*0.5f);
 		UI.Position = Camera.Position;
 	}
 
@@ -36,20 +38,18 @@ public partial class Level : Node2D
 	{
 	}
 
-	public async void OnWFCGeneratorDone()
+	public void OnWFCGeneratorDone()
 	{
+		// Interpret what the generator made and prepare for gameplay
+
 		if (PlayerInstance != null)
-			return; // in rare errors the generator will signal more than once
+			return; // generator may finish on multiple threads if regenerated
 
 		Rect2I targetRect = TargetTileMap.GetUsedRect();
 		Vector2 targetPos = ToGlobal(TargetTileMap.MapToLocal(targetRect.Position));
 		Vector2 targetSize = ToGlobal(TargetTileMap.MapToLocal(targetRect.Size - new Vector2I(1,1)));
 		LevelRect = new Rect2(targetPos.X, targetPos.Y, targetSize.X, targetSize.Y);
-		GetNode<NavigationRegion2D>("WFC Generator/NavigationRegion2D").Enabled = false;
 		TargetNavRegion.BakeNavigationPolygon(false); // bake on same thread
-
-		UI.Hide();
-		CanvasBlack.Show();
 
 		PlayerInstance = (Player) PlayerScene.Instantiate();
 		PlayerInstance.LevelRect = LevelRect;
@@ -78,14 +78,20 @@ public partial class Level : Node2D
 					else
 						pos = new Vector2(pos.X, pos.Y-tileSize);
 				}
-				GD.Print("invalid, try "+pos.ToString());
+				GD.Print("invalid player start pos, try "+pos.ToString());
 			}
 		}
 		PlayerInstance.GlobalPosition = pos;
+
+		StartButton.Show();
+	}
+
+	public async void OnStartButtonPressed()
+	{
+		UI.Hide();
+		CanvasBlack.Show();
 		AddChild(PlayerInstance);
-
 		RainforestAudio.Play(GD.Randi() % 300);
-
 		Tween CamPosTween = GetTree().CreateTween();
 		Tween CamZoomTween = GetTree().CreateTween();
 		CamPosTween.TweenProperty(Camera, "position", PlayerInstance.GlobalPosition, 1.0).SetEase(Tween.EaseType.InOut);

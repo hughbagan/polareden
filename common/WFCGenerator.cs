@@ -135,7 +135,7 @@ public partial class WFCGenerator : Node2D
 			if (failCount > failMax)
 			{
 				GD.Print("regenerate map");
-				GetTree().ReloadCurrentScene(); // cant resolve conflicts, start over completely
+				OnButtonPressed(); // cant resolve conflicts; start over completely
 			}
 			FixFail();
 		}

@@ -3403,6 +3403,22 @@ grow_vertical = 0
 pivot_offset = Vector2(100, 30)
 text = "Generate"
 
+[node name="StartButton" type="Button" parent="UI"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = 192.0
+offset_right = 100.0
+offset_bottom = 252.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(100, 30)
+text = "Start"
+
 [node name="ProgressBar" type="ProgressBar" parent="UI" node_paths=PackedStringArray("generator")]
 layout_mode = 1
 anchors_preset = 12
@@ -3427,3 +3443,4 @@ stream = ExtResource("5_oevyw")
 
 [connection signal="OnDone" from="WFC Generator" to="." method="OnWFCGeneratorDone"]
 [connection signal="pressed" from="UI/Button" to="WFC Generator" method="OnButtonPressed"]
+[connection signal="pressed" from="UI/StartButton" to="." method="OnStartButtonPressed"]
